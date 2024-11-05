@@ -6,6 +6,7 @@
 #include "cs.h"
 #include "pipeline.h"
 #include "logs.h"
+#include "line.h"
 
 using std::cin;
 using std::cout;
@@ -19,6 +20,7 @@ int main()
 
     std::unordered_map<int, Pipeline> pipes;
     std::unordered_map<int, CS> css;
+    Line line;
 
     short int menu_choice = -1;
 
@@ -30,13 +32,18 @@ int main()
         cout << "3 - all objects\n";
         cout << "4 - save in file\n";
         cout << "5 - download from file\n";
-        cout << "6 - all objects\n";
-        cout << "7 - delete pipe\n";
-        cout << "9 - delete cs\n";
+        cout << "6 - filter pipes by name\n";
+        cout << "7 - filter pipes by repair indicator\n";
+        cout << "8 - filter cs by name\n";
+        cout << "9 - filter cs by % of working\n";
+        cout << "10 - delete pipe\n";
+        cout << "11 - delete cs\n";
+        cout << "12 - check connections\n";
+        cout << "13 - create connection\n";
         cout << "0 - exit\n";
         cout << "--------------------------------------------------------------------\n";
       
-        menu_choice = read_input<short int>("Select menu item: ", 0, 11);
+        menu_choice = read_input<short int>("Select menu item: ", 0, 13);
         switch (menu_choice)
         {
         case 1: cin >> pipes; break;
@@ -53,6 +60,7 @@ int main()
         case 9: filter_cs_by_work_percentage(css); break;
         case 10: { cout << pipes; int ch = read_input<int>("Enter ID of pipe: ", 0, pipes.size() - 1); pipes.erase(ch); break; }
         case 11: { cout << css; int ch = read_input<int>("Enter ID of cs: ", 0, css.size() - 1); css.erase(ch); break; }
+        case 12: { line.check_connection(pipes, css); break; }
         case 0: logfile.close(); return 0;
         }
     }

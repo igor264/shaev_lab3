@@ -139,7 +139,7 @@ void filter_pipes_by_name(std::unordered_map<int, Pipeline>& pipes)
 
 void filter_pipes_by_repair(std::unordered_map<int, Pipeline>& pipes)
 {
-    int repair_status = read_input<int>("Enter repair status (0 - working, 1 - on repairing): ", 0, 1);
+    bool repair_status = read_input<bool>("Enter repair status (0 - working, 1 - on repairing): ");
     std::vector<int> ids;
     bool flag = false;
 

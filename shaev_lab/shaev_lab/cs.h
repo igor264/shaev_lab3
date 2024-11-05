@@ -4,6 +4,8 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "line.h"
+
 class CS
 {
 private:

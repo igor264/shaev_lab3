@@ -24,6 +24,9 @@
     <ClCompile Include="cs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pipeline.h">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="logs.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="line.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
