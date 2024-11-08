@@ -15,7 +15,7 @@ class Line
 {
 public:
 	void check_connection(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css);
-	void create_connecton(std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css);
+	void create_connection(std::unordered_map<int, Pipeline>& pipes, std::unordered_map<int, CS>& css);
+	void topologSort(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& stations);
 };
-
 #endif

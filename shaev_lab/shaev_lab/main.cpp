@@ -40,10 +40,11 @@ int main()
         cout << "11 - delete cs\n";
         cout << "12 - check connections\n";
         cout << "13 - create connection\n";
+        cout << "14 - topolog sort\n";
         cout << "0 - exit\n";
         cout << "--------------------------------------------------------------------\n";
       
-        menu_choice = read_input<short int>("Select menu item: ", 0, 13);
+        menu_choice = read_input<short int>("Select menu item: ", 0, 14);
         switch (menu_choice)
         {
         case 1: cin >> pipes; break;
@@ -61,6 +62,8 @@ int main()
         case 10: { cout << pipes; int ch = read_input<int>("Enter ID of pipe: ", 0, pipes.size() - 1); pipes.erase(ch); break; }
         case 11: { cout << css; int ch = read_input<int>("Enter ID of cs: ", 0, css.size() - 1); css.erase(ch); break; }
         case 12: { line.check_connection(pipes, css); break; }
+        case 13: { line.create_connection(pipes, css); break; }
+        case 14: { line.topologSort(pipes, css); break; }
         case 0: logfile.close(); return 0;
         }
     }

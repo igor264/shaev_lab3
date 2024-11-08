@@ -46,7 +46,9 @@ std::ostream& operator << (std::ostream& out, const Pipeline& pipe)
         << "\nPipe name: " << pipe.PipeName
         << "\nPipe length: " << pipe.LengthOfPipe
         << "\nPipe diameter: " << pipe.Diameter
-        << "\nThe pipe attribute: " << pipe.RepairIndicator << std::endl;
+        << "\nThe pipe attribute: " << pipe.RepairIndicator
+        << "\ninput cs id=" << pipe.IdInput
+        << "\noutput cs id=" << pipe.IdOutput << std::endl;
     return out;
 };
 
