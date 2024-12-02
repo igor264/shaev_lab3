@@ -17,12 +17,13 @@ class Line
 private:
     static int MaxIDPipe;
     static int MaxIDCS;
-    std::unordered_map<int, std::vector<int>> cs_inputs;  // Входящие трубы для CS
-    std::unordered_map<int, std::vector<int>> cs_outputs; // Исходящие трубы для CS
     std::unordered_map<int, int> pipe_inputs;  // Входные CS для труб
     std::unordered_map<int, int> pipe_outputs; // Выходные CS для труб
-
 public:
+    void delete_pipe(int pipe_id, std::unordered_map<int, Pipeline>& pipes);
+    void delete_cs(int cs_id, std::unordered_map<int, CS>& css);
+    void save_connections(std::ofstream& out);
+    void load_connections(std::ifstream& in, std::unordered_map<int, Pipeline>& pipes, std::unordered_map<int, CS>& css);
     void check_connection(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css);
     void create_connection(std::unordered_map<int, Pipeline>& pipes, std::unordered_map<int, CS>& css);
     void topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css);

@@ -6,6 +6,7 @@
 #include <queue>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 using std::cout;
 
@@ -142,3 +143,110 @@ void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const
     cout << "\n";
 }
 
+void Line::delete_pipe(int pipe_id, std::unordered_map<int, Pipeline>& pipes) {
+    if (pipes.find(pipe_id) == pipes.end()) {
+        cout << "Error: Pipe ID not found.\n";
+        return;
+    }
+
+    // Удаляем соединения, связанные с трубой
+    pipe_inputs.erase(pipe_id);
+    pipe_outputs.erase(pipe_id);
+
+    // Удаляем саму трубу
+    pipes.erase(pipe_id);
+    cout << "Pipe with ID " << pipe_id << " has been deleted.\n";
+}
+
+void Line::delete_cs(int cs_id, std::unordered_map<int, CS>& css) {
+    if (css.find(cs_id) == css.end()) {
+        cout << "Error: CS ID not found.\n";
+        return;
+    }
+
+    // Удаляем все соединения, связанные с данным КС
+    for (auto it = pipe_inputs.begin(); it != pipe_inputs.end(); ) {
+        if (it->second == cs_id) {
+            it = pipe_inputs.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    for (auto it = pipe_outputs.begin(); it != pipe_outputs.end(); ) {
+        if (it->second == cs_id) {
+            it = pipe_outputs.erase(it);
+        }
+        else {
+            ++it;
+        }
+    }
+
+    // Удаляем сам КС
+    css.erase(cs_id);
+    cout << "CS with ID " << cs_id << " has been deleted.\n";
+}
+
+void Line::save_connections(std::ofstream& out)  {
+    for (const auto& con : pipe_outputs) {
+        out << "@connection@\n";
+        out << "OUTPUT " << con.first << " " << con.second << "\n";
+    }
+
+    for (const auto& con : pipe_inputs) {
+        out << "@connection@\n";
+        out << "INPUT " << con.first << " " << con.second << "\n";
+    }
+
+    std::cout << "Connections successfully saved.\n";
+}
+
+
+
+void Line::load_connections(std::ifstream& in, std::unordered_map<int, Pipeline>& pipes, std::unordered_map<int, CS>& css)
+{
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line == "@connection@") {
+            int pipe_id, cs_id;
+            std::string connection_type;
+
+            if (!(in >> connection_type)) {
+                std::cout << "Error: Missing connection type in file. Skipping entry.\n";
+                in.clear();
+                in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
+            }
+
+            if (!(in >> pipe_id) || pipes.find(pipe_id) == pipes.end()) {
+                std::cout << "Error: Invalid or non-existent pipe ID in file. Skipping entry.\n";
+                in.clear();
+                in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
+            }
+
+            if (!(in >> cs_id) || css.find(cs_id) == css.end()) {
+                std::cout << "Error: Invalid or non-existent CS ID in file. Skipping entry.\n";
+                in.clear();
+                in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
+            }
+
+            if (connection_type == "OUTPUT") {
+                pipe_outputs[pipe_id] = cs_id;  // Устанавливаем выход трубы
+            }
+            else if (connection_type == "INPUT") {
+                pipe_inputs[pipe_id] = cs_id;  // Устанавливаем вход трубы
+            }
+            else {
+                std::cout << "Error: Unknown connection type '" << connection_type << "'. Skipping entry.\n";
+                in.clear();
+                in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+        }
+    }
+
+    std::cout << "Connections successfully loaded from " << ".\n";
+    in.close();
+}

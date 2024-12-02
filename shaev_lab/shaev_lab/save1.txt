@@ -1,0 +1,70 @@
+@cs@
+cs 0
+555
+4
+4
+@cs@
+cs 1
+88888
+66666
+66
+@cs@
+ccc 2
+10
+5
+4
+@cs@
+cddd
+55
+2
+65
+@cs@
+ddd
+222
+22
+2
+@pipeline@
+pipe 0
+11
+111
+1
+@pipeline@
+pip 1
+5555
+22
+1
+@pipeline@
+pipeline 2
+65
+554
+0
+@pipeline@
+pppppp
+6666
+22
+0
+@pipeline@
+555555
+1111
+222
+1
+@pipeline@
+lkkkk
+222
+22
+0
+@pipeline@
+2222
+22
+1
+0
+@connection@
+OUTPUT 0 0
+@connection@
+OUTPUT 1 2
+@connection@
+OUTPUT 2 4
+@connection@
+INPUT 1 0
+@connection@
+INPUT 2 2
