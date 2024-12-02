@@ -1,5 +1,6 @@
 ﻿#include "cs.h"
 #include "logs.h"
+#include "line.h"
 
 #include <iostream>
 #include <fstream>
@@ -7,11 +8,13 @@
 using std::cin;
 using std::cout;
 
-int CS::MaxIDCS = 0;
+class Line;
+
+int Line::MaxIDCS = 0;
 
 CS::CS()
 {
-    CSID = MaxIDCS++;
+    CSID = Line::MaxIDCS++;
 }
 
 std::istream& operator >> (std::istream& in, std::unordered_map<int, CS>& css) {
@@ -68,11 +71,11 @@ std::ostream& operator << (std::ostream& out, const CS& cs)
 
  std::ofstream& operator << (std::ofstream& out, const CS& cs)
  {
-    out << "@cs@" << '\n'
-        << cs.CSName << '\n'
-        << cs.NumberOfWorkshops << '\n'
-        << cs.WorkshopsInWork << '\n'
-        << cs.Efficiency << '\n';
+     out << "@cs@" << "\n"
+         << cs.CSName << "\n"
+         << cs.NumberOfWorkshops << "\n"
+         << cs.WorkshopsInWork << "\n"
+         << cs.Efficiency << "\n";
      return out;
  };
 
@@ -108,7 +111,6 @@ std::ostream& operator << (std::ostream& out, const CS& cs)
 
              css.insert({ cs.GetID(), cs });
              //std::cerr << "2\n" << cs.CSName << std::endl << cs.NumberOfWorkshops << std::endl << cs.WorkshopsInWork << std::endl << cs.Efficiency << std::endl;
-
          }
      }
      return in;

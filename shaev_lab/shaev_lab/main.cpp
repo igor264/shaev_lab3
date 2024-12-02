@@ -63,7 +63,7 @@ int main()
         case 11: { cout << css; int ch = read_input<int>("Enter ID of cs: ", 0, css.size() - 1); css.erase(ch); break; }
         case 12: { line.check_connection(pipes, css); break; }
         case 13: { line.create_connection(pipes, css); break; }
-        case 14: { line.topologSort(pipes, css); break; }
+        case 14: { line.topologicalSort(pipes, css); break; }
         case 0: logfile.close(); return 0;
         }
     }

@@ -10,11 +10,11 @@ using std::cout;
 using std::cin;
 
 
-int Pipeline::MaxIDPipe = 0;
+int Line::MaxIDPipe = 0;
 
 Pipeline::Pipeline()
 {
-    PipeID = MaxIDPipe++;
+    PipeID = Line::MaxIDPipe++;
 }
 
 
@@ -46,9 +46,7 @@ std::ostream& operator << (std::ostream& out, const Pipeline& pipe)
         << "\nPipe name: " << pipe.PipeName
         << "\nPipe length: " << pipe.LengthOfPipe
         << "\nPipe diameter: " << pipe.Diameter
-        << "\nThe pipe attribute: " << pipe.RepairIndicator
-        << "\ninput cs id=" << pipe.IdInput
-        << "\noutput cs id=" << pipe.IdOutput << std::endl;
+        << "\nThe pipe attribute: " << pipe.RepairIndicator << std::endl;
     return out;
 };
 

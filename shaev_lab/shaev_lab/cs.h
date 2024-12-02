@@ -9,7 +9,6 @@ class Line;
 class CS
 {
 private:
-    static int MaxIDCS;
     int CSID = 0;
     std::string CSName = "None";
     int NumberOfWorkshops = -1;
@@ -19,6 +18,7 @@ public:
 
     CS();
     int GetID() const { return CSID; };
+
     void create_cs(std::unordered_map<int, CS>& css) { std::cin >> css; };
     friend void change_workshops_in_work(CS& cs, int& new_WorkshopsInWork);
     friend std::istream& operator >> (std::istream& in, std::unordered_map<int, CS>& css);

@@ -15,22 +15,15 @@ class CS;
 class Pipeline
 {
 private:
-    static int MaxIDPipe;
     int PipeID = 0;
     int LengthOfPipe = 0;
     short int Diameter = 0;
     std::string PipeName = "None";
     bool RepairIndicator = 0;
-    int IdInput = -1;
-    int IdOutput = -1;
 
 public:
     Pipeline();
     int GetID() const { return PipeID; };
-    int GetInput() const { return IdInput; }
-    int GetOutput() const { return IdOutput; }
-    void SetInput(int IDCS) { IdInput = IDCS; }
-    void SetOutput(int IDCS) { IdOutput = IDCS; }
     friend void ChangeRepair(Pipeline& pipe, bool repair);
     friend std::istream& operator >> (std::istream& in, std::unordered_map<int, Pipeline>& pipes);
     friend std::ostream& operator << (std::ostream& out, const Pipeline& pipe);

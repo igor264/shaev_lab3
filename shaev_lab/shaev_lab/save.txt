@@ -18,6 +18,16 @@ cddd
 55
 2
 65
+@cs@
+ddd
+222
+22
+2
+@cs@
+bj
+6656
+55
+22
 @pipeline@
 pipe 0
 11
@@ -37,4 +47,19 @@ pipeline 2
 pppppp
 6666
 22
+0
+@pipeline@
+555555
+1111
+222
+1
+@pipeline@
+lkkkk
+222
+22
+0
+@pipeline@
+2222
+22
+1
 0

@@ -27,7 +27,7 @@ public:
 	}
 };
 
-template <typename T>
+template <typename T> 
 T read_input(const std::string& prompt, const T min_value = std::numeric_limits<T>::lowest(), const T max_value = std::numeric_limits<T>::max()) {
     T value;
     while (true) {
