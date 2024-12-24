@@ -9,6 +9,7 @@ using std::cin;
 using std::cout;
 
 class Line;
+class Pipeline;
 
 int Line::MaxIDCS = 0;
 

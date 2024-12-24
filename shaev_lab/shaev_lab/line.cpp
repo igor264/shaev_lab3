@@ -61,42 +61,59 @@ void Line::create_connection(std::unordered_map<int, Pipeline>& pipes, std::unor
 
         choice = read_input<int>("Choose connection type (1/2/0): ", 0, 2);
     }
+    refresh_weight_matrix(pipes);
 }
 
-void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css) {
-    int n = css.size();
-    std::vector<std::vector<int>> weightMatrix(n, std::vector<int>(n, 0));
+void Line::update_weight_matrix(const std::unordered_map<int, Pipeline>& pipes) {
+    int n = MaxIDCS + 1;
+    weightMatrix.assign(n, std::vector<int>(n, std::numeric_limits<int>::max())); // Инициализируем матрицу весов
 
-    // Заполнение матрицы весов
     for (const auto& input : pipe_inputs) {
-        auto& pipe_id = input.first;
-        auto& input_cs = input.second;
+        int pipe_id = input.first;
+        int input_cs = input.second;
+
         if (pipe_outputs.count(pipe_id)) {
             int output_cs = pipe_outputs.at(pipe_id);
+
             if (input_cs != -1 && output_cs != -1) {
-                weightMatrix[input_cs][output_cs] = pipes.at(pipe_id).LengthOfPipe;
+                const auto& pipe = pipes.at(pipe_id);
+                if (!pipe.RepairIndicator) { // Проверяем, не находится ли труба в ремонте
+                    // Выбираем минимальный вес, если уже есть связь
+                    if (weightMatrix[input_cs][output_cs] > pipe.LengthOfPipe) {
+                        weightMatrix[input_cs][output_cs] = pipe.LengthOfPipe;
+                    }
+                }
             }
         }
     }
 
-    // Вывод матрицы весов
-    cout << "Weight Matrix (Length of Pipes):\n";
-    cout << "   ";
+    // Удаляем значения "бесконечности" (неактуальные связи)
     for (int i = 0; i < n; ++i) {
-        cout << i << " ";
-    }
-    cout << "\n";
-
-    for (int i = 0; i < n; ++i) {
-        cout << i << ": ";
         for (int j = 0; j < n; ++j) {
-            cout << weightMatrix[i][j] << " ";
+            if (weightMatrix[i][j] == std::numeric_limits<int>::max()) {
+                weightMatrix[i][j] = 0; // Сбрасываем "пустые" связи
+            }
         }
-        cout << "\n";
+    }
+    update_capacity_matrix(pipes);
+}
+
+
+void Line::refresh_weight_matrix(const std::unordered_map<int, Pipeline>& pipes) {
+    update_weight_matrix(pipes);
+    cout << "Weight matrix has been updated.\n";
+}
+
+
+void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const std::unordered_map<int, CS>& css) {
+    if (weightMatrix.empty()) {
+        cout << "Weight matrix is empty. Updating...\n";
+        update_weight_matrix(pipes);
     }
 
-    // Рассчитываем входящие степени
+    int n = weightMatrix.size();
     std::vector<int> inDegree(n, 0);
+
     for (int i = 0; i < n; ++i) {
         for (int j = 0; j < n; ++j) {
             if (weightMatrix[i][j] > 0) {
@@ -105,7 +122,6 @@ void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const
         }
     }
 
-    // Очередь вершин с входящей степенью 0
     std::queue<int> zeroDegreeQueue;
     for (int i = 0; i < n; ++i) {
         if (inDegree[i] == 0) {
@@ -113,7 +129,6 @@ void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const
         }
     }
 
-    // Топологическая сортировка
     std::vector<int> sortedOrder;
     while (!zeroDegreeQueue.empty()) {
         int current = zeroDegreeQueue.front();
@@ -129,13 +144,11 @@ void Line::topologicalSort(const std::unordered_map<int, Pipeline>& pipes, const
         }
     }
 
-    // Проверка на цикл
     if (sortedOrder.size() != n) {
-        std::cerr << "Error: Graph contains a cycle or disconnected components.\n";
+        std::cerr << "Error: Graph contains a cycle\n";
         return;
     }
 
-    // Вывод результата
     cout << "Topological Sort Order (CS IDs):\n";
     for (int id : sortedOrder) {
         cout << id << " ";
@@ -156,9 +169,10 @@ void Line::delete_pipe(int pipe_id, std::unordered_map<int, Pipeline>& pipes) {
     // Удаляем саму трубу
     pipes.erase(pipe_id);
     cout << "Pipe with ID " << pipe_id << " has been deleted.\n";
+    refresh_weight_matrix(pipes);
 }
 
-void Line::delete_cs(int cs_id, std::unordered_map<int, CS>& css) {
+void Line::delete_cs(int cs_id, std::unordered_map<int, CS>& css, const std::unordered_map<int, Pipeline>& pipes) {
     if (css.find(cs_id) == css.end()) {
         cout << "Error: CS ID not found.\n";
         return;
@@ -186,6 +200,7 @@ void Line::delete_cs(int cs_id, std::unordered_map<int, CS>& css) {
     // Удаляем сам КС
     css.erase(cs_id);
     cout << "CS with ID " << cs_id << " has been deleted.\n";
+    refresh_weight_matrix(pipes);
 }
 
 void Line::save_connections(std::ofstream& out)  {
@@ -249,4 +264,177 @@ void Line::load_connections(std::ifstream& in, std::unordered_map<int, Pipeline>
 
     std::cout << "Connections successfully loaded from " << ".\n";
     in.close();
+    refresh_weight_matrix(pipes);
+}
+
+void Line::mydikstra(const std::unordered_map<int, CS>& css) {
+    int n = weightMatrix.size();
+
+    // Запрос начальной и конечной КС
+    int start, end;
+    std::cout << "Enter the ID of the starting compressor station (0 to " << n - 1 << "): ";
+    std::cin >> start;
+    std::cout << "Enter the ID of the ending compressor station (0 to " << n - 1 << "): ";
+    std::cin >> end;
+
+    if (start < 0 || start >= n || end < 0 || end >= n) {
+        std::cout << "Error: Invalid CS IDs. Please try again.\n";
+        return;
+    }
+
+    std::vector<int> distances(n, std::numeric_limits<int>::max()); // Дистанции от начальной вершины
+    std::vector<int> predecessors(n, -1); // Для восстановления пути
+    distances[start] = 0;
+
+    // Очередь минимального приоритета (расстояние, вершина)
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
+    pq.push({ 0, start });
+
+    while (!pq.empty()) {
+        auto top = pq.top();
+        int current_distance = top.first;
+        int current_node = top.second;
+        pq.pop();
+
+        if (current_distance > distances[current_node]) {
+            continue;
+        }
+
+        for (int neighbor = 0; neighbor < n; ++neighbor) {
+            if (weightMatrix[current_node][neighbor] > 0) { // Есть соединение
+                int new_distance = current_distance + weightMatrix[current_node][neighbor];
+                if (new_distance < distances[neighbor]) {
+                    distances[neighbor] = new_distance;
+                    predecessors[neighbor] = current_node;
+                    pq.push({ new_distance, neighbor });
+                }
+            }
+        }
+    }
+
+    // Вывод результата
+    if (distances[end] == std::numeric_limits<int>::max()) {
+        std::cout << "No path exists from CS " << start << " to CS " << end << ".\n";
+        return;
+    }
+
+    std::cout << "Shortest distance from CS " << start << " to CS " << end << ": " << distances[end] << "\n";
+
+    // Восстановление пути
+    std::vector<int> path;
+    for (int at = end; at != -1; at = predecessors[at]) {
+        path.push_back(at);
+    }
+    std::reverse(path.begin(), path.end());
+
+    std::cout << "Path:\n";
+    for (size_t i = 0; i < path.size(); ++i) {
+        int cs_id = path[i];
+        std::cout << "CS ID: " << cs_id;
+
+        if (i < path.size() - 1) {
+            std::cout << " --> ";
+        }
+        else {
+            std::cout << "\n";
+        }
+    }
+}
+
+
+void Line::update_capacity_matrix(const std::unordered_map<int, Pipeline>& pipes) {
+    int n = MaxIDCS + 1;
+    capacityMatrix.assign(n, std::vector<int>(n, 0)); // Матрица пропускных способностей
+
+    for (const auto& input : pipe_inputs) {
+        int pipe_id = input.first;
+        int input_cs = input.second;
+
+        if (pipe_outputs.count(pipe_id)) {
+            int output_cs = pipe_outputs.at(pipe_id);
+
+            if (input_cs != -1 && output_cs != -1) {
+                const auto& pipe = pipes.at(pipe_id);
+                if (!pipe.RepairIndicator) { // Проверяем, не находится ли труба в ремонте
+                    capacityMatrix[input_cs][output_cs] += (pipe.Diameter)^5 / (pipe.LengthOfPipe * 10) ; // Используем диаметр как пропускную способность
+                }
+            }
+        }
+    }
+
+    std::cout << "Capacity matrix has been updated.\n";
+}
+
+bool bfs(const std::vector<std::vector<int>>& residualGraph, int source, int sink, std::vector<int>& parent) {
+    int n = residualGraph.size();
+    std::vector<bool> visited(n, false);
+    std::queue<int> q;
+
+    q.push(source);
+    visited[source] = true;
+    parent[source] = -1;
+
+    while (!q.empty()) {
+        int current = q.front();
+        q.pop();
+
+        for (int next = 0; next < n; ++next) {
+            if (!visited[next] && residualGraph[current][next] > 0) {
+                q.push(next);
+                parent[next] = current;
+                visited[next] = true;
+
+                if (next == sink) {
+                    return true; // Достигли стока
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+void Line::fordFulkersonMaxFlow() {
+    int start, end;
+    std::cout << "Enter the ID of the starting compressor station (0 to " << capacityMatrix.size() - 1 << "): ";
+    std::cin >> start;
+    std::cout << "Enter the ID of the ending compressor station (0 to " << capacityMatrix.size() - 1 << "): ";
+    std::cin >> end;
+    int n = capacityMatrix.size();
+    std::vector<std::vector<int>> residualGraph = capacityMatrix;
+    std::vector<int> parent(n, -1);
+    int maxFlow = 0;
+
+    while (bfs(residualGraph, start, end, parent)) {
+        int pathFlow = std::numeric_limits<int>::max();
+        std::vector<int> path; // Для сохранения текущего пути
+
+        // Определяем минимальную пропускную способность на пути
+        for (int v = end; v != start; v = parent[v]) {
+            int u = parent[v];
+            pathFlow = std::min(pathFlow, residualGraph[u][v]);
+        }
+
+        // Обновляем остаточный граф и сохраняем путь
+        for (int v = end; v != start; v = parent[v]) {
+            int u = parent[v];
+            residualGraph[u][v] -= pathFlow;
+            residualGraph[v][u] += pathFlow;
+            path.push_back(v); // Добавляем вершину пути
+        }
+        path.push_back(start); // Добавляем начальную вершину
+        std::reverse(path.begin(), path.end()); // Путь идет от start к end
+
+        // Вывод пути
+        std::cout << "Augmenting path found: ";
+        for (size_t i = 0; i < path.size(); ++i) {
+            std::cout << path[i];
+            if (i != path.size() - 1) std::cout << " -> ";
+        }
+        std::cout << " with flow: " << pathFlow << "\n";
+
+        maxFlow += pathFlow; // Увеличиваем общий поток
+    }
+
+    std::cout << "The maximum possible flow from CS " << start << " to CS " << end << " is: " << maxFlow << "\n";
 }

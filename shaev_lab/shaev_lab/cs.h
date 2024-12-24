@@ -29,6 +29,7 @@ public:
     friend void filter_cs_by_name(std::unordered_map<int, CS>& cs);
     friend void filter_cs_by_work_percentage(std::unordered_map<int, CS>& cs);
     friend class Line;
+    friend class Pipeline;
 };
 
 std::ostream& operator << (std::ostream& out, const std::unordered_map<int, CS>& css);

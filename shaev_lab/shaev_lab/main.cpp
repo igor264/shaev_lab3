@@ -46,7 +46,7 @@ int main()
         cout << "0 - exit\n";
         cout << "--------------------------------------------------------------------\n";
       
-        menu_choice = read_input<short int>("Select menu item: ", 0, 14);
+        menu_choice = read_input<short int>("Select menu item: ", 0, 16);
         switch (menu_choice)
         {
         case 1: cin >> pipes; break;
@@ -65,10 +65,12 @@ int main()
         case 8: filter_cs_by_name(css); break;
         case 9: filter_cs_by_work_percentage(css); break;
         case 10: { cout << pipes; int ch = read_input<int>("Enter ID of pipe: ", 0, pipes.size() - 1); line.delete_pipe(ch, pipes); pipes.erase(ch); break; }
-        case 11: { cout << css; int ch = read_input<int>("Enter ID of cs: ", 0, css.size() - 1); line.delete_cs(ch, css); css.erase(ch); break; }
+        case 11: { cout << css; int ch = read_input<int>("Enter ID of cs: ", 0, css.size() - 1); line.delete_cs(ch, css, pipes); css.erase(ch); break; }
         case 12: { line.check_connection(pipes, css); break; }
         case 13: { line.create_connection(pipes, css); break; }
         case 14: { line.topologicalSort(pipes, css); break; }
+        case 15: { line.mydikstra(css); break; }
+        case 16: { line.fordFulkersonMaxFlow(); break; }
         case 0: logfile.close(); return 0;
         }
     }
